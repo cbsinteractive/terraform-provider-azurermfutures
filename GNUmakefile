@@ -1,6 +1,9 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
 PKG_NAME=azurermfutures
+BINARY=terraform-provider-${PKG_NAME}
 
+build: fmtcheck
+	go build -o ${BINARY}
 
 fmt:
 	@echo "==> Fixing source code with gofmt..."

@@ -10,10 +10,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 )
 
-type streamAnalyticsJobType struct{}
+// NewResource instantiates a new Resource of this ResourceType.
+func (t resourcesStreamAnalyticsJob) NewResource(ctx context.Context, p tfsdk.Provider) (tfsdk.Resource, []*tfprotov6.Diagnostic) {
+	log.Println("[DEBUG] Inside streamAnalyticsJob.NewResource")
+	return resourcesStreamAnalyticsJob{
+		p: *(p.(*provider)),
+	}, nil
+}
+
+type resourcesStreamAnalyticsJob struct {
+	p provider
+}
 
 // GetSchema returns the schema for this resource.
-func (t streamAnalyticsJobType) GetSchema(context.Context) (schema.Schema, []*tfprotov6.Diagnostic) {
+func (t resourcesStreamAnalyticsJob) GetSchema(context.Context) (schema.Schema, []*tfprotov6.Diagnostic) {
 	log.Println("[DEBUG] Inside streamAnalyticsJob.GetSchema")
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
@@ -29,8 +39,16 @@ func (t streamAnalyticsJobType) GetSchema(context.Context) (schema.Schema, []*tf
 // and planned state values should be read from the
 // CreateResourceRequest and new state values set on the
 // CreateResourceResponse.
-func (t streamAnalyticsJobType) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r resourcesStreamAnalyticsJob) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	log.Println("[DEBUG] Inside streamAnalyticsJob.Create")
+	if !r.p.configured {
+		resp.Diagnostics = append(resp.Diagnostics, &tfprotov6.Diagnostic{
+			Severity: tfprotov6.DiagnosticSeverityError,
+			Summary:  "Provider not configured",
+			Detail:   "Terraform attempted to create a resource before the provider was properly configured.",
+		})
+		return
+	}
 	var plan StreamAnalyticsJob
 	err := req.Plan.Get(ctx, &plan)
 	if err != nil {
@@ -59,7 +77,7 @@ func (t streamAnalyticsJobType) Create(ctx context.Context, req tfsdk.CreateReso
 // to update state. Planned state values should be read from the
 // ReadResourceRequest and new state values set on the
 // ReadResourceResponse.
-func (t streamAnalyticsJobType) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (t resourcesStreamAnalyticsJob) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
 	log.Println("[DEBUG] Inside streamAnalyticsJob.Read")
 	var state StreamAnalyticsJob
 	err := req.State.Get(ctx, &state)
@@ -77,13 +95,13 @@ func (t streamAnalyticsJobType) Read(ctx context.Context, req tfsdk.ReadResource
 // state, and prior state values should be read from the
 // UpdateResourceRequest and new state values set on the
 // UpdateResourceResponse.
-func (t streamAnalyticsJobType) Update(context.Context, tfsdk.UpdateResourceRequest, *tfsdk.UpdateResourceResponse) {
+func (t resourcesStreamAnalyticsJob) Update(context.Context, tfsdk.UpdateResourceRequest, *tfsdk.UpdateResourceResponse) {
 	log.Println("[DEBUG] Inside streamAnalyticsJob.Update")
 }
 
 // Delete is called when the provider must delete the resource. Config
 // values may be read from the DeleteResourceRequest.
-func (t streamAnalyticsJobType) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (t resourcesStreamAnalyticsJob) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	log.Println("[DEBUG] Inside streamAnalyticsJob.Delete")
 	var state StreamAnalyticsJob
 	err := req.State.Get(ctx, &state)
@@ -98,10 +116,4 @@ func (t streamAnalyticsJobType) Delete(ctx context.Context, req tfsdk.DeleteReso
 	log.Printf("[DEBUG] state: %+v\n", state)
 	// Remove resource from state
 	resp.State.RemoveResource(ctx)
-}
-
-// NewResource instantiates a new Resource of this ResourceType.
-func (t streamAnalyticsJobType) NewResource(context.Context, tfsdk.Provider) (tfsdk.Resource, []*tfprotov6.Diagnostic) {
-	log.Println("[DEBUG] Inside streamAnalyticsJob.NewResource")
-	return streamAnalyticsJobType{}, nil
 }

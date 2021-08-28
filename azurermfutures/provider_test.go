@@ -10,7 +10,7 @@ var testAccProviderFactories map[string]func() (tfprotov6.ProviderServer, error)
 func init() {
 	testAccProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"azurermfutures": func() (tfprotov6.ProviderServer, error) {
-			return tfsdk.NewProtocol6Server(newProvider()), nil
+			return tfsdk.NewProtocol6Server(NewProvider()), nil
 		},
 	}
 }
